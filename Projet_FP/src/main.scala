@@ -1,3 +1,3 @@
 class main {
-	//coucou petit monsieur
+	//coucou petits monsieurs
 }
