@@ -2,23 +2,11 @@ import JaCoP.scala._
 
 object main extends jacop {
   def main(args: Array[String]): Unit = {
-//    val lundi		= 1
-//	val mardi		= 2
-//	val mercredi	= 3
-//	val jeudi		= 4
-//	val vendredi	= 5
-//	
-//	val _8h30	= 1
-//	val _9h30	= 2
-//	val _10h30	= 3
-//	val _11h30	= 4
-//	val _13h00	= 5
-//	val _14h00	= 6
-//	val _15h00	= 7
-//	val _16h00	= 8
-//	
-//	val _017	= 1
-//	val _019	= 2
+    // association valeurs => noms
+    val jourNoms  = "Lundi" :: "Mardi" :: "Mercredi" :: "Jeudi" :: "Vendredi" :: Nil
+    val heureNoms = "8h30" :: "9h30" :: "10h30" :: "11h30" :: "13h00" :: "14h00" :: "15h00" :: "16h00" :: Nil
+    val localNoms = "017" :: "019" :: Nil
+    val profNoms  = "Donatien" :: "Brigitte" :: Nil
 	
 	// variables
 	val jour = IntVar("jour", 1, 5)
@@ -35,8 +23,22 @@ object main extends jacop {
 	
 	// affichage et satisfaction
 	def printSol(): Unit = {
-	  for (v <- vars) print(v.id + " " + v.value + " ")
-	  	println()
+	  for (v <- vars) {
+	    //print(v.id + " " + v.value + " ")
+	    
+	    print(v.id + " = ")
+	    
+	    v.id match {
+	      case "jour"  => print(jourNoms(v.value() - 1))
+	      case "heure" => print(heureNoms(v.value() - 1))
+	      case "local" => print(localNoms(v.value() - 1))
+	      case "prof" => print(profNoms(v.value() - 1))
+	    }
+	    
+	    print(" ")
+	  }
+	  
+	  println()
 	}
 	
 	val result = satisfyAll(search(vars, first_fail, indomain_middle), printSol)
