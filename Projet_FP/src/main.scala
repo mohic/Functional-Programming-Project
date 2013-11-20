@@ -9,17 +9,16 @@ object main extends jacop {
     val profNoms  = "Donatien" :: "Brigitte" :: Nil
 	
 	// variables
-	val jour = IntVar("jour", 1, 5)
+	val jour  = IntVar("jour", 1, 5)
 	val heure = IntVar("heure", 1, 8)
 	val local = IntVar("local", 1, 2)
-	val prof = IntVar("prof", 1, 2)
+	val prof  = IntVar("prof", 1, 2)
 	
 	// tableau de variables
 	val vars = List(jour, heure, local, prof)
 	
 	// conditions
 	//TODO
-	
 	
 	// affichage et satisfaction
 	def printSol(): Unit = {
