@@ -24,8 +24,6 @@ object main extends jacop {
 	// affichage et satisfaction
 	def printSol(): Unit = {
 	  for (v <- vars) {
-	    //print(v.id + " " + v.value + " ")
-	    
 	    print(v.id + " = ")
 	    
 	    v.id match {
