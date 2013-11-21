@@ -9,30 +9,50 @@ object main extends jacop {
     val profNoms  = "Donatien" :: "Brigitte" :: Nil
 	
 	// variables
-	val jour  = IntVar("jour", 1, 5)
-	val heure = IntVar("heure", 1, 8)
-	val local = IntVar("local", 1, 2)
-	val prof  = IntVar("prof", 1, 2)
+    val jours  = for(i <- List.range(0, jourNoms.length)) yield IntVar(jourNoms(i), 1, jourNoms.length)
+    val heures = for(i <- List.range(0, heureNoms.length)) yield IntVar(heureNoms(i), 1, heureNoms.length)
+    val locaux = for(i <- List.range(0, localNoms.length)) yield IntVar(localNoms(i), 1, localNoms.length)
+    val profs  = for(i <- List.range(0, profNoms.length)) yield IntVar(profNoms(i), 1, profNoms.length)
+    
+    // conditions
+    alldifferent(jours)
+    alldifferent(heures)
+    alldifferent(locaux)
+    alldifferent(profs)
 	
 	// tableau de variables
-	val vars = List(jour, heure, local, prof)
+    val vars = jours ::: heures ::: locaux ::: profs
 	
+	/* donatien donne pas cours le mercredi
+	
+	if (prof == donatien)
+	  jour != mercredi
+	  
+	  donatien == prof;
+	  jour != mercredi;
+	  prof == donatien -> jour != mercredi
+	*/
 	// conditions
 	//TODO
 	
 	// affichage et satisfaction
 	def printSol(): Unit = {
 	  for (v <- vars) {
-	    print(v.id + " = ")
+	    var result = Map[Int, (String, String, String)]();
 	    
-	    v.id match {
-	      case "jour"  => print(jourNoms(v.value() - 1))
-	      case "heure" => print(heureNoms(v.value() - 1))
-	      case "local" => print(localNoms(v.value() - 1))
-	      case "prof" => print(profNoms(v.value() - 1))
-	    }
-	    
-	    print(" ")
+	      for (v <- jours) {
+	        result += (v.value -> (v.id, "", ""))
+	      }
+	      for (v <- heures) {
+	        result += (v.value -> (result(v.value)._1, v.id, ""))
+	      }
+	      for (v <- locaux) {
+	        result += (v.value -> (result(v.value)._1, result(v.value)._2, v.id))
+	      }
+	
+	      for (v <- result) {
+	        println(v._2._1 + " " + v._2._2 + " " + v._2._3)
+	      }
 	  }
 	  
 	  println()
