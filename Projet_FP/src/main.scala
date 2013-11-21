@@ -22,7 +22,7 @@ object main extends jacop {
     // tableau de variables
     val vars = List(jhl, prof, cours)
 
-    //toto
+    //toto2
     // conditions
     //(prof == 1) -> (jour != 3) // donatien ne donne pas cours le mercredi
 
