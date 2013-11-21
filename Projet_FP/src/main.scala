@@ -37,7 +37,7 @@ object main extends jacop {
 
           print("local = " + localNoms((v.value() % 10) - 1) + " ")
         } else {
-          print(v.id + " = ")
+          print("\t" + v.id + " = ")
           
           if (v.id == prof.id) {
         	  print(profNoms(v.value() - 1))
@@ -52,6 +52,6 @@ object main extends jacop {
       }
     }
 
-    val result = satisfyAll(search(vars, first_fail, indomain_middle), printSol)
+    val result = satisfyAll(search(vars, first_fail, indomain_min), printSol)
   }
 }
