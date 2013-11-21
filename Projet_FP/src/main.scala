@@ -23,7 +23,7 @@ object main extends jacop {
     val vars = List(jhl, prof, cours)
 
     // conditions
-    (prof == 1) -> (jour != 3) // donatien ne donne pas cours le mercredi
+    //(prof == 1) -> (jour != 3) // donatien ne donne pas cours le mercredi
 
     // affichage et satisfaction
     def printSol(): Unit = {
