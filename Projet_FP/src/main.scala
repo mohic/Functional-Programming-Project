@@ -38,21 +38,7 @@ object main extends jacop {
 	// affichage et satisfaction
 	def printSol(): Unit = {
 	  for (v <- vars) {
-	    var result = Map[Int, (String, String, String)]();
-	    
-	      for (v <- jours) {
-	        result += (v.value -> (v.id, "", ""))
-	      }
-	      for (v <- heures) {
-	        result += (v.value -> (result(v.value)._1, v.id, ""))
-	      }
-	      for (v <- locaux) {
-	        result += (v.value -> (result(v.value)._1, result(v.value)._2, v.id))
-	      }
-	
-	      for (v <- result) {
-	        println(v._2._1 + " " + v._2._2 + " " + v._2._3)
-	      }
+	    print(v.id + " " + v.value() + " ")
 	  }
 	  
 	  println()
