@@ -85,10 +85,6 @@ object Test extends jacop {
     profDonnepasCoursJour("Donatien", "Lundi")
     
 //    profs(4) #= courss(3) // BI -> Gilles
-//    profs(0) #= courss(1)
-//    profs(0) #= courss(2)
-//    profs(1) #= courss(0)
-//    profs(3) #= courss(2)
     
 //    profs(1) #= courss(1)
 //    profs(0) #\= courss(1)
