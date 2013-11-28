@@ -116,6 +116,7 @@ object Test extends jacop {
       println()
     }
     
+    //REMARQUE: faire satisfyAll si l'on veut toutes les possibilités d'horaires
     val result = satisfy(search(vars, first_fail, indomain_min), printSol)
     
     if (!result)
