@@ -18,7 +18,12 @@ object main extends jacop {
     
     val prof = IntVar("prof", 1, profNoms.length)
     val cours = IntVar("cours", 1, coursNoms.length)
-
+    
+    var b = BoolVar("donatienPasCoursMecredi")
+    
+//    OR(AND(b #= true , prof #= 1 , cours #= 1),
+//       AND(b #= false, prof #\= 1, cours #\= 1))
+    
     // tableau de variables
     val vars = List(jhl, prof, cours)
 
@@ -43,6 +48,8 @@ object main extends jacop {
         	  print(profNoms(v.value() - 1))
           } else if (v.id == cours.id) {
         	  print(coursNoms(v.value() - 1))
+          } else {
+            print(v.value())
           }
         }
 
