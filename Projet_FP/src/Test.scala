@@ -6,7 +6,7 @@ object Test extends jacop {
     // liste des jours de la semaine
     val jours  = List("Lundi", "Mardi")//, "Mercredi", "Jeudi", "Vendredi")
     val heures = List("8h30", "9h30")//, "10h30", "11h30", "13h00", "14h00", "15h00", "16h00")
-    val locaux = List("017", "019")
+    val locaux = List("017")//, "019")
     
     // génération de la grille horaire
     val jhl = for (j <- List.range(0, jours.length);
@@ -66,7 +66,7 @@ object Test extends jacop {
     def profDonnePasCoursJour(prof: String, jour: String): Unit = {
       val j = jours.indexOf(jour)
       
-      for(i <- 0 to (heures.length * locaux.length)) {
+      for(i <- 0 to (heures.length * locaux.length - 1)) {
         jhls((j * heures.length * locaux.length) + i) #\= profs(getProfesseur(prof))
       }
     }
