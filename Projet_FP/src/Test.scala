@@ -4,26 +4,21 @@ object Test extends jacop {
   def main(args: Array[String]) {
     
     // liste des jours de la semaine
-    val jours = List("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche")
+    val jours  = List("Lundi", "Mardi")//, "Mercredi", "Jeudi", "Vendredi")
+    val heures = List("8h30", "9h30")//, "10h30", "11h30", "13h00", "14h00", "15h00", "16h00")
+    val locaux = List("017", "019")
     
-    // grille horaire
-    val jhl = List("Lundi_08h30_017", "Lundi_08h30_019",
-    			   "Lundi_09h30_017", "Lundi_09h30_019",
-    			   "Lundi_10h30_017", "Lundi_10h30_019",
-    			   "Lundi_11h30_017", "Lundi_11h30_019",
-    			   "Lundi_12h30_017", "Lundi_12h30_019",
-    			   
-    			   "Mardi_08h30_017", "Mardi_08h30_019",
-    			   "Mardi_09h30_017", "Mardi_09h30_019",
-    			   "Mardi_10h30_017", "Mardi_10h30_019",
-    			   "Mardi_11h30_017", "Mardi_11h30_019",
-    			   "Mardi_12h30_017", "Mardi_12h30_019")
+    // génération de la grille horaire
+    val jhl = for (j <- List.range(0, jours.length);
+    			   h <- List.range(0, heures.length);
+    			   l <- List.range(0, locaux.length))
+    	yield jours(j) + '_' + heures(h) + '_' + locaux(l)
     
     // liste des profs
-    val prof  = List("Donatien", "Brigitte", "Bernard", "Emmeline", "Gilles")
+    val prof  = List("Donatien", "Brigitte")//, "Bernard", "Emmeline", "Gilles")
     
     // liste des cours
-    val cours = List("Algorithme", "Scala", "IOO", "BI", "JSP")
+    val cours = List("Algorithme", "Scala")//, "IOO", "BI", "JSP")
     
     // listes de IntVar pour indiquer des contraintes
     val jhls   = for (i <- List.range(0, jhl.length)) yield IntVar(jhl(i), 1, jhl.length)
@@ -68,21 +63,25 @@ object Test extends jacop {
      * @params prof Le nom du professeur
      * @params jour Le jour de la semaine
      * */
-    def profDonnepasCoursJour(prof: String, jour: String): Unit = {
+    def profDonnePasCoursJour(prof: String, jour: String): Unit = {
       val j = jours.indexOf(jour)
       
-      for(i <- 0 to 9) {
-        jhls(j * 10 + i) #\= profs(getProfesseur(prof))
+      for(i <- 0 to (heures.length * locaux.length)) {
+        jhls((j * heures.length * locaux.length) + i) #\= profs(getProfesseur(prof))
       }
     }
     
     // ******************
     
+    // TODO à voir l'utilité
     alldifferent(jhls)
     alldifferent(profs)
     alldifferent(courss)
     
-    profDonnepasCoursJour("Donatien", "Lundi")
+    profDonnePasCoursJour("Donatien", "Lundi")
+    profDonnePasCoursJour("Brigitte", "Lundi")
+    
+//    profs(getProfesseur("Gilles")) #= courss(getCours("BI"))
     
 //    profs(4) #= courss(3) // BI -> Gilles
     
@@ -114,6 +113,7 @@ object Test extends jacop {
     
     //REMARQUE: faire satisfyAll si l'on veut toutes les possibilités d'horaires
     val result = satisfy(search(vars, first_fail, indomain_min), printSol)
+    //val result = satisfyAll(search(vars, first_fail, indomain_min), printSol)
     
     if (!result)
       println("PAS DE SOLUTION !!!")
