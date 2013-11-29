@@ -18,7 +18,7 @@ object Test extends jacop {
     val prof  = List("Donatien", "Brigitte")//, "Bernard", "Emmeline", "Gilles")
     
     // liste des cours
-    val cours = List("Algorithme", "Scala")//, "IOO", "BI", "JSP")
+    val cours = List("Algorithme")//, "Scala")//, "IOO", "BI", "JSP")
     
     // listes de IntVar pour indiquer des contraintes
     val jhls   = for (i <- List.range(0, jhl.length)) yield IntVar(jhl(i), 1, jhl.length)
@@ -112,10 +112,12 @@ object Test extends jacop {
     }
     
     //REMARQUE: faire satisfyAll si l'on veut toutes les possibilités d'horaires
-    val result = satisfy(search(vars, first_fail, indomain_min), printSol)
-    //val result = satisfyAll(search(vars, first_fail, indomain_min), printSol)
+    //val result = satisfy(search(vars, first_fail, indomain_min), printSol)
+    val result = satisfyAll(search(vars, first_fail, indomain_min), printSol)
     
     if (!result)
-      println("PAS DE SOLUTION !!!")
+      println("!!! PAS DE SOLUTION !!!")
+    else
+      println("!!! FIN !!!")
   }
 }
