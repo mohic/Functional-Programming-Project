@@ -18,10 +18,11 @@ object Test extends jacop {
     val prof  = List("Donatien", "Brigitte")//, "Bernard", "Emmeline", "Gilles")
     
     // liste des cours
-    val cours = List("Algorithme")//, "Scala")//, "IOO", "BI", "JSP")
+    val cours = List("Algorithme", "Scala")//, "IOO", "BI", "JSP")
     
     // listes de IntVar pour indiquer des contraintes
-    val jhls   = for (i <- List.range(0, jhl.length)) yield IntVar(jhl(i), 1, jhl.length)
+    //val jhls   = for (i <- List.range(0, jhl.length)) yield IntVar(jhl(i), 1, jhl.length)
+    val jhls = for (i <- List.range(0, jhl.length)) yield i
     val profs  = for (i <- List.range(0, prof.length)) yield IntVar(prof(i), 1, prof.length)
     val courss = for (i <- List.range(0, cours.length)) yield IntVar(cours(i), 1, cours.length)
     
@@ -74,12 +75,12 @@ object Test extends jacop {
     // ******************
     
     // TODO à voir l'utilité
-    alldifferent(jhls)
+    //alldifferent(jhls)
     alldifferent(profs)
     alldifferent(courss)
     
-    profDonnePasCoursJour("Donatien", "Lundi")
-    profDonnePasCoursJour("Brigitte", "Lundi")
+    //profDonnePasCoursJour("Donatien", "Lundi")
+    //profDonnePasCoursJour("Brigitte", "Lundi")
     
 //    profs(getProfesseur("Gilles")) #= courss(getCours("BI"))
     
@@ -88,13 +89,15 @@ object Test extends jacop {
 //    profs(1) #= courss(1)
 //    profs(0) #\= courss(1)
     
-    val vars = jhls ::: profs ::: courss
+	//val vars = jhls ::: profs ::: courss
+    val vars = profs ::: courss
     
     def printSol(): Unit = {
       var result = Map[Int, (String, String, String)]();
       
       for (v <- jhls) {
-        result += (v.value -> (v.id, "", ""))
+        //result += (v.value -> (v.id, "", ""))
+        result += (v.value -> (jhl(v.value), "", ""))
       }
       for (v <- profs) {
         result += (v.value -> (result(v.value)._1, v.id, ""))
@@ -105,7 +108,7 @@ object Test extends jacop {
       }
 
       for (v <- result) {
-        println(v._2._1 + " " + v._2._2 + " " + v._2._3)
+        println(v._2._1 + " - " + v._2._2 + " - " + v._2._3)
       }
       
       println()
