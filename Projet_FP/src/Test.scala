@@ -72,6 +72,7 @@ object Test extends jacop {
     
     // ******************
     
+    //TODO réfléchir à comment résoudre le problème de pas de prof à une certaine heure
     profDonnePasCoursJour("Donatien", "Lundi")
     //profDonnePasCoursJour("Brigitte", "Lundi")
     
@@ -84,18 +85,34 @@ object Test extends jacop {
     
     val vars = jhl_prof ::: jhl_cours
     
-    def printSol(): Unit = {      
+    // comtpeur de solutions
+    var compteur = 0;
+    
+    def printSol(): Unit = {
+      var result = Map[String, (String, String)]()
+      
+      // création des différentes entrées
+      for (v <- jhl) {
+        result += (v -> ("", ""))
+      }
+      
+      // remplissage des entrées
       for(v <- vars) {
-        print(jhl(v.id.replaceAll("jhl_prof_", "").replaceAll("jhl_cours_", "").toInt) + " = ")
+        val id = jhl(v.id.replaceAll("jhl_prof_", "").replaceAll("jhl_cours_", "").toInt)
         
         if (v.id.startsWith("jhl_prof_")) {
-          println(prof(v.value() - 1))
+          result += (id -> (prof(v.value() - 1), result(id)._2))
         } else if (v.id.startsWith("jhl_cours_")) {
-          println(cours(v.value() - 1))
-        } else {
-          println();
+          result += (id -> (result(id)._1, cours(v.value() - 1)))
         }
       }
+      
+      // affichage des entrées
+      for (v <- result) {
+        println(v._1 + " - " + v._2._1 + " - " + v._2._2)
+      }
+      
+      compteur += 1
       
       println()
     }
@@ -107,6 +124,6 @@ object Test extends jacop {
     if (!result)
       println("!!! PAS DE SOLUTION !!!")
     else
-      println("!!! FIN !!!")
+      println("!!! FIN (avec " + compteur + " SOLUTION(S)) !!!")
   }
 }
