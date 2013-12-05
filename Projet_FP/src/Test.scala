@@ -21,10 +21,8 @@ object Test extends jacop {
     val cours = List("Algorithme", "Scala")//, "IOO", "BI", "JSP")
     
     // listes de IntVar pour indiquer des contraintes
-    //val jhls   = for (i <- List.range(0, jhl.length)) yield IntVar(jhl(i), 1, jhl.length)
-    val jhls = for (i <- List.range(0, jhl.length)) yield i
-    val profs  = for (i <- List.range(0, prof.length)) yield IntVar(prof(i), 1, prof.length)
-    val courss = for (i <- List.range(0, cours.length)) yield IntVar(cours(i), 1, cours.length)
+    val jhl_prof  = for (i <- List.range(0, jhl.length)) yield IntVar("jhl_prof_" + i, 1, prof.length)
+    val jhl_cours = for (i <- List.range(0, jhl.length)) yield IntVar("jhl_cours_" + i, 1, cours.length)
     
     // ******** functions
     
@@ -67,19 +65,14 @@ object Test extends jacop {
     def profDonnePasCoursJour(prof: String, jour: String): Unit = {
       val j = jours.indexOf(jour)
       
-      for(i <- 0 to (heures.length * locaux.length - 1)) {
-        jhls((j * heures.length * locaux.length) + i) #\= profs(getProfesseur(prof))
+      for (i <- 0 to (heures.length * locaux.length - 1)) {
+        jhl_prof(i + (j * heures.length * locaux.length)) #\= getProfesseur(prof) + 1
       }
     }
     
     // ******************
     
-    // TODO à voir l'utilité
-    //alldifferent(jhls)
-    alldifferent(profs)
-    alldifferent(courss)
-    
-    //profDonnePasCoursJour("Donatien", "Lundi")
+    profDonnePasCoursJour("Donatien", "Lundi")
     //profDonnePasCoursJour("Brigitte", "Lundi")
     
 //    profs(getProfesseur("Gilles")) #= courss(getCours("BI"))
@@ -89,26 +82,19 @@ object Test extends jacop {
 //    profs(1) #= courss(1)
 //    profs(0) #\= courss(1)
     
-	//val vars = jhls ::: profs ::: courss
-    val vars = profs ::: courss
+    val vars = jhl_prof ::: jhl_cours
     
-    def printSol(): Unit = {
-      var result = Map[Int, (String, String, String)]();
-      
-      for (v <- jhls) {
-        //result += (v.value -> (v.id, "", ""))
-        result += (v.value -> (jhl(v.value), "", ""))
-      }
-      for (v <- profs) {
-        result += (v.value -> (result(v.value)._1, v.id, ""))
-      }
-      
-      for (v <- courss) {
-        result += (v.value -> (result(v.value)._1, result(v.value)._2, v.id))
-      }
-
-      for (v <- result) {
-        println(v._2._1 + " - " + v._2._2 + " - " + v._2._3)
+    def printSol(): Unit = {      
+      for(v <- vars) {
+        print(jhl(v.id.replaceAll("jhl_prof_", "").replaceAll("jhl_cours_", "").toInt) + " = ")
+        
+        if (v.id.startsWith("jhl_prof_")) {
+          println(prof(v.value() - 1))
+        } else if (v.id.startsWith("jhl_cours_")) {
+          println(cours(v.value() - 1))
+        } else {
+          println();
+        }
       }
       
       println()
