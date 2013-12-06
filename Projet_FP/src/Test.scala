@@ -4,9 +4,9 @@ object Test extends jacop {
   def main(args: Array[String]) {
     
     // liste des jours de la semaine
-    val jours  = List("Lundi", "Mardi")//, "Mercredi", "Jeudi", "Vendredi")
-    val heures = List("8h30", "9h30")//, "10h30", "11h30", "13h00", "14h00", "15h00", "16h00")
-    val locaux = List("017")//, "019")
+    val jours  = List("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi")
+    val heures = List("8h30", "9h30", "10h30", "11h30", "13h00", "14h00", "15h00", "16h00")
+    val locaux = List("017", "019")
     
     // génération de la grille horaire
     val jhl = for (j <- List.range(0, jours.length);
@@ -72,11 +72,12 @@ object Test extends jacop {
     
     // ******************
     
-    //TODO réfléchir à comment résoudre le problème de pas de prof à une certaine heure
-    profDonnePasCoursJour("Donatien", "Lundi")
+    //TODO réfléchir à comment résoudre le problème de pas de prof à une certaine heure (par exemple pas cours le mardi dernière heure
+    //profDonnePasCoursJour("Donatien", "Lundi")
     //profDonnePasCoursJour("Brigitte", "Lundi")
     
 //    profs(getProfesseur("Gilles")) #= courss(getCours("BI"))
+    //(jhl_prof(0) == getProfesseur("Donatien")) -> (jhl_cours(0) #= getCours("Scala"))
     
 //    profs(4) #= courss(3) // BI -> Gilles
     
@@ -85,7 +86,7 @@ object Test extends jacop {
     
     val vars = jhl_prof ::: jhl_cours
     
-    // comtpeur de solutions
+    // compteur de solutions
     var compteur = 0;
     
     def printSol(): Unit = {
@@ -107,9 +108,9 @@ object Test extends jacop {
         }
       }
       
-      // affichage des entrées
-      for (v <- result) {
-        println(v._1 + " - " + v._2._1 + " - " + v._2._2)
+      // affichage des entrées dans l'ordre du lundi 8h30 au 017 jusqu'au vendredi 16h00 au 019
+      for (v <- jhl) {
+        println(v + " - " + result.get(v).get._1 + " - " + result.get(v).get._2)
       }
       
       compteur += 1
@@ -118,8 +119,8 @@ object Test extends jacop {
     }
     
     //REMARQUE: faire satisfyAll si l'on veut toutes les possibilités d'horaires
-    //val result = satisfy(search(vars, first_fail, indomain_min), printSol)
-    val result = satisfyAll(search(vars, first_fail, indomain_min), printSol)
+    val result = satisfy(search(vars, first_fail, indomain_min), printSol)
+    //val result = satisfyAll(search(vars, first_fail, indomain_min), printSol)
     
     if (!result)
       println("!!! PAS DE SOLUTION !!!")
