@@ -1,4 +1,5 @@
 import JaCoP.scala._
+import JaCoP.constraints.Sum
 
 object Test extends jacop {
   def main(args: Array[String]) {
@@ -15,10 +16,10 @@ object Test extends jacop {
     	yield jours(j) + '_' + heures(h) + '_' + locaux(l)
     
     // liste des profs
-    val prof  = List("Donatien", "Brigitte")//, "Bernard", "Emmeline", "Gilles")
+    val prof  = List("Donatien", "Brigitte", "Bernard", "Emmeline", "Gilles")
     
     // liste des cours
-    val cours = List("Algorithme", "Scala")//, "IOO", "BI", "JSP")
+    val cours = List("Algorithme", "Scala", "IOO", "BI", "JSP")
     
     // listes de IntVar pour indiquer des contraintes
     val jhl_prof  = for (i <- List.range(0, jhl.length)) yield IntVar("jhl_prof_" + i, 1, prof.length)
@@ -31,30 +32,30 @@ object Test extends jacop {
      * @params jour Le jour de la semaine. "Lundi", "Mardi", ...
      * @params heure L'heure de la semaine. "8h30", "9h30", ...
      * @params local Le local. "017", "019", ...
-     * @return L'index du jour dans jhl. -1 si pas trouvé
+     * @return L'index du jour dans jhl à partir de 1. 0 si pas trouvé
      * */
     def getJourHeureLocal(jour: String, heure: String, local: String): Int = {
       val s_jhl = jour + '_' + heure + '_' + local
       
-      jhl.indexOf(s_jhl)
+      jhl.indexOf(s_jhl) + 1
     }
     
     /**
      * Obtenir l'index d'un professeur
-     * @params professeur Le nom du professeur.
-     * @return L'index du professeur. -1 si pas trouvé
+     * @params professeur Le nom du professeur
+     * @return L'index du professeur à partir de 1. 0 si pas trouvé
      * */
     def getProfesseur(professeur: String): Int = {
-      prof.indexOf(professeur)
+      prof.indexOf(professeur) + 1
     }
     
     /**
      * Obtenir l'index d'un cours
-     * @params nomCours Le nom du cours.
-     * @return L'index du cours. -1 si pas trouvé
+     * @params nomCours Le nom du cours
+     * @return L'index du cours à partir de 1. 0 si pas trouvé
      * */
     def getCours(nomCours: String): Int = {
-      cours.indexOf(nomCours)
+      cours.indexOf(nomCours) + 1
     }
     
     /**
@@ -66,23 +67,63 @@ object Test extends jacop {
       val j = jours.indexOf(jour)
       
       for (i <- 0 to (heures.length * locaux.length - 1)) {
-        jhl_prof(i + (j * heures.length * locaux.length)) #\= getProfesseur(prof) + 1
+        jhl_prof(i + (j * heures.length * locaux.length)) #\= getProfesseur(prof)
       }
     }
     
+    /**
+     * Définit une contrainte disant que le professeur donne un certain cours durant maximum autant d'heures
+     * @params prof Le nom du professeur
+     * @params cours Le nom du cours
+     * @params heuresMax Le nombre d'heures maximum
+     * */
+    def profDonneCours(prof: String, cours: String, heuresMax: Int): Unit = {
+      var lst = List[BoolVar]()
+      
+      for (i <- List.range(0, jhl.length)) {
+        val state = BoolVar("cours-prof")
+        
+        state <=> AND(jhl_prof(i) #= getProfesseur(prof), jhl_cours(i) #= getCours(cours))
+        lst ::= state
+      }
+      
+      sum(lst) #= heuresMax
+    }
+    
+    /*
+     * // TODO -- ALGO DE ALEX
+     /*********************************************************
+	 * Contraintes générales nécessitant une somme
+	 * - Max d'heures pour tel cours
+	 * - Max d'heures pour tel prof
+	 *
+	 *
+	 *********************************************************/
+	 var ListeC1S1 = List[BoolVar]()
+	 var ListeC1S2 = List[BoolVar]()
+	 for(s <- slots){
+	 val statement = BoolVar("serie1")
+	 statement <=> AND(s._2 #= 1, s._3 #=1)
+	 ListeC1S1 ::= statement
+	 
+	 val statement2 = BoolVar("serie2")
+	 statement2 <=> AND(s._2 #= 1, s._3 #=2)
+	 ListeC1S2 ::= statement2
+	 }
+	
+	 sum(ListeC1S1) #= 1
+	 sum(ListeC1S2) #= 1
+	 
+     * */
+    
     // ******************
     
-    //TODO réfléchir à comment résoudre le problème de pas de prof à une certaine heure (par exemple pas cours le mardi dernière heure
+    //TODO réfléchir à comment résoudre le problème de pas de prof à une certaine heure (par exemple pas cours le mardi dernière heure)
     //profDonnePasCoursJour("Donatien", "Lundi")
     //profDonnePasCoursJour("Brigitte", "Lundi")
-    
-//    profs(getProfesseur("Gilles")) #= courss(getCours("BI"))
-    //(jhl_prof(0) == getProfesseur("Donatien")) -> (jhl_cours(0) #= getCours("Scala"))
-    
-//    profs(4) #= courss(3) // BI -> Gilles
-    
-//    profs(1) #= courss(1)
-//    profs(0) #\= courss(1)
+    profDonneCours("Donatien", "IOO", 4)
+    profDonneCours("Donatien", "Scala", 4)
+    profDonneCours("Brigitte", "Scala", 8)
     
     val vars = jhl_prof ::: jhl_cours
     
