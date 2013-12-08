@@ -16,10 +16,10 @@ object Test extends jacop {
     	yield jours(j) + '_' + heures(h) + '_' + locaux(l)
     
     // liste des profs
-    val prof  = List("Donatien", "Brigitte", "Bernard", "Emmeline", "Gilles")
+    val prof  = List("AUCUN", "Donatien", "Brigitte", "Bernard", "Emmeline", "Gilles")
     
     // liste des cours
-    val cours = List("Algorithme", "Scala", "IOO", "BI", "JSP")
+    val cours = List("AUCUN", "Algorithme", "Scala", "IOO", "BI", "JSP")
     
     // listes de IntVar pour indiquer des contraintes
     val jhl_prof  = for (i <- List.range(0, jhl.length)) yield IntVar("jhl_prof_" + i, 1, prof.length)
@@ -90,6 +90,10 @@ object Test extends jacop {
       sum(lst) #= heuresMax
     }
     
+    // interdire d'avoir cours si pas de prof
+    for (i <- List.range(0, jhl.length))
+      OR(AND(jhl_prof(i) #= 0, jhl_cours(i) #= 0), AND(jhl_prof(i) #\= 0, jhl_cours(i) #\= 0))
+    
     /*
      * // TODO -- ALGO DE ALEX
      /*********************************************************
@@ -119,16 +123,20 @@ object Test extends jacop {
     // ******************
     
     //TODO réfléchir à comment résoudre le problème de pas de prof à une certaine heure (par exemple pas cours le mardi dernière heure)
-    //profDonnePasCoursJour("Donatien", "Lundi")
-    //profDonnePasCoursJour("Brigitte", "Lundi")
+    profDonnePasCoursJour("Donatien", "Vendredi")
+    profDonnePasCoursJour("Brigitte", "Lundi")
+    profDonnePasCoursJour("Brigitte", "Mardi")
+    profDonnePasCoursJour("Brigitte", "Mercredi")
+    profDonnePasCoursJour("Brigitte", "Jeudi")
     profDonneCours("Donatien", "IOO", 4)
-    profDonneCours("Donatien", "Scala", 4)
-    profDonneCours("Brigitte", "Scala", 8)
+//    profDonneCours("Donatien", "Scala", 5) //TODO: QUESTION: Si appeller 2x cette fonction avec le même prof, tourne en boucle. Pour régler, soit ne pas dire 2x le même prof, soit retirer des cours et/ou des profs dans les listes
+    profDonneCours("Brigitte", "Scala", 4)
+    profDonneCours("Gilles", "BI", 4)
     
     val vars = jhl_prof ::: jhl_cours
     
     // compteur de solutions
-    var compteur = 0;
+    //var compteur = 0;
     
     def printSol(): Unit = {
       var result = Map[String, (String, String)]()
@@ -143,9 +151,15 @@ object Test extends jacop {
         val id = jhl(v.id.replaceAll("jhl_prof_", "").replaceAll("jhl_cours_", "").toInt)
         
         if (v.id.startsWith("jhl_prof_")) {
-          result += (id -> (prof(v.value() - 1), result(id)._2))
+          if (v.value() - 1 == 0)
+            result += (id -> ("°", result(id)._2))
+          else
+        	  result += (id -> (prof(v.value() - 1), result(id)._2))
         } else if (v.id.startsWith("jhl_cours_")) {
-          result += (id -> (result(id)._1, cours(v.value() - 1)))
+          if (v.value() - 1 == 0)
+            result += (id -> (result(id)._1, "°"))
+          else
+        	  result += (id -> (result(id)._1, cours(v.value() - 1)))
         }
       }
       
@@ -154,7 +168,7 @@ object Test extends jacop {
         println(v + " - " + result.get(v).get._1 + " - " + result.get(v).get._2)
       }
       
-      compteur += 1
+      //compteur += 1
       
       println()
     }
@@ -166,6 +180,6 @@ object Test extends jacop {
     if (!result)
       println("!!! PAS DE SOLUTION !!!")
     else
-      println("!!! FIN (avec " + compteur + " SOLUTION(S)) !!!")
+      println("!!! FIN") // (avec " + compteur + " SOLUTION(S)) !!!")
   }
 }
