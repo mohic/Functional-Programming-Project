@@ -16,7 +16,7 @@ object Test extends jacop {
     	yield jours(j) + '_' + heures(h) + '_' + locaux(l)
     
     // liste des profs
-    val prof  = List("AUCUN", "Donatien", "Brigitte", "Bernard", "Emmeline", "Gilles")
+    val prof  = List("AUCUN", "Donatien", "Brigitte", "Gilles")
     
     // liste des cours
     val cours = List("AUCUN", "Algorithme", "Scala", "IOO", "BI", "JSP")
@@ -26,6 +26,33 @@ object Test extends jacop {
     val jhl_cours = for (i <- List.range(0, jhl.length)) yield IntVar("jhl_cours_" + i, 1, cours.length)
     
     // ******** functions
+    
+    /**
+     * Obtenir l'index d'un jour
+     * @params jour Le nom du jour
+     * @return L'index du jour à partir de 1. 0 si pas trouvé
+     * */
+    def getJour(jour: String): Int = {
+      jours.indexOf(jour) + 1
+    }
+    
+    /**
+     * Obtenir l'index d'une heure
+     * @params heure L'heure
+     * @return L'index de l'heure à partir de 1. 0 si pas trouvé
+     * */
+    def getHeure(heure: String): Int = {
+      heures.indexOf(heure) + 1
+    }
+    
+    /**
+     * Obtenir l'index d'un local
+     * @params local Le nom du local
+     * @return L'index du local à partir de 1. 0 si pas trouvé
+     * */
+    def getLocal(local: String): Int = {
+      locaux.indexOf(local) + 1
+    }
     
     /**
      * Obtenir l'index d'un jour de la semaine à une heure particulière et dans un local bien précis
@@ -72,6 +99,23 @@ object Test extends jacop {
     }
     
     /**
+     * Définit une contrainte disant qu'un prof ne donne pas cours avant tel heure
+     * @params prof Le nom du professeur
+     * @params heure L'heure
+     * */
+    def profDonnePasCoursAvantHeure(prof: String, heure: String): Unit = {
+      val indexHeure = getHeure(heure) - 1
+      
+      for (j <- jours) {
+        for (l <- locaux) {
+          for (h <- 0 to indexHeure) {
+            jhl_prof(getJourHeureLocal(j, heures(h), l)) #\= (getProfesseur(prof))
+          }
+        }
+      }
+    }
+    
+    /**
      * Définit une contrainte disant que le professeur donne un certain cours durant maximum autant d'heures
      * @params prof Le nom du professeur
      * @params cours Le nom du cours
@@ -90,48 +134,32 @@ object Test extends jacop {
       sum(lst) #= heuresMax
     }
     
-    // interdire d'avoir cours si pas de prof
-    for (i <- List.range(0, jhl.length))
-      OR(AND(jhl_prof(i) #= 0, jhl_cours(i) #= 0), AND(jhl_prof(i) #\= 0, jhl_cours(i) #\= 0))
     
-    /*
-     * // TODO -- ALGO DE ALEX
-     /*********************************************************
-	 * Contraintes générales nécessitant une somme
-	 * - Max d'heures pour tel cours
-	 * - Max d'heures pour tel prof
-	 *
-	 *
-	 *********************************************************/
-	 var ListeC1S1 = List[BoolVar]()
-	 var ListeC1S2 = List[BoolVar]()
-	 for(s <- slots){
-	 val statement = BoolVar("serie1")
-	 statement <=> AND(s._2 #= 1, s._3 #=1)
-	 ListeC1S1 ::= statement
-	 
-	 val statement2 = BoolVar("serie2")
-	 statement2 <=> AND(s._2 #= 1, s._3 #=2)
-	 ListeC1S2 ::= statement2
-	 }
-	
-	 sum(ListeC1S1) #= 1
-	 sum(ListeC1S2) #= 1
-	 
-     * */
+    // contraintes obligatoires
+    
+    // interdire d'avoir cours si pas de prof et inversément
+    for (i <- List.range(0, jhl.length))
+      OR(AND(jhl_prof(i) #= 1, jhl_cours(i) #= 1), AND(jhl_prof(i) #\= 1, jhl_cours(i) #\= 1))
+      
+    // un prof ne peut pas être dans plusieurs local en même temps
+    for (i <- List.range(0, jhl.length, locaux.length)) {
+      for (j <- 1 to locaux.length - 1) {
+        OR(AND(jhl_prof(i) #= 1, jhl_prof(i) #= 1), AND(jhl_prof(i) #\= 1, jhl_prof(i) #\= jhl_prof(i + j)))
+      }
+    }
     
     // ******************
     
-    //TODO réfléchir à comment résoudre le problème de pas de prof à une certaine heure (par exemple pas cours le mardi dernière heure)
-    profDonnePasCoursJour("Donatien", "Vendredi")
-    profDonnePasCoursJour("Brigitte", "Lundi")
-    profDonnePasCoursJour("Brigitte", "Mardi")
-    profDonnePasCoursJour("Brigitte", "Mercredi")
-    profDonnePasCoursJour("Brigitte", "Jeudi")
+//    profDonnePasCoursJour("Donatien", "Vendredi")
+//    profDonnePasCoursJour("Brigitte", "Lundi")
+//    profDonnePasCoursJour("Brigitte", "Mardi")
+//    profDonnePasCoursJour("Brigitte", "Mercredi")
+//    profDonnePasCoursJour("Brigitte", "Jeudi")
+      profDonnePasCoursAvantHeure("Donatien", "9h30")
     profDonneCours("Donatien", "IOO", 4)
 //    profDonneCours("Donatien", "Scala", 5) //TODO: QUESTION: Si appeller 2x cette fonction avec le même prof, tourne en boucle. Pour régler, soit ne pas dire 2x le même prof, soit retirer des cours et/ou des profs dans les listes
-    profDonneCours("Brigitte", "Scala", 4)
-    profDonneCours("Gilles", "BI", 4)
+//    profDonneCours("Brigitte", "Scala", 4)
+//    profDonneCours("Gilles", "BI", 4)
     
     val vars = jhl_prof ::: jhl_cours
     
