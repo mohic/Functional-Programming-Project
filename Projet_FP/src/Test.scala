@@ -104,34 +104,50 @@ object Test extends jacop {
      * @params jour Le jour de la semaine
      * */
     def profDonnePasCoursJour(prof: String, jour: String): Unit = {
-      val j = jours.indexOf(jour)
+      val j = getJour(jour) - 1
       
-      for (i <- 0 to (heures.length * locaux.length - 1)) {
-        jhl_prof(i + (j * heures.length * locaux.length)) #\= getProfesseur(prof)
+      for (h <- heures) {
+        for (l <- locaux) {
+          jhl_prof(getJourHeureLocal(jours(j), h, l)-(locaux.length-1)) #\= getProfesseur(prof)
+        }
       }
     }
-    
+
     /**
      * Définit une contrainte disant qu'un prof ne donne pas cours avant tel heure
      * @params prof Le nom du professeur
      * @params heure L'heure
-     * */
+     */
     def profDonnePasCoursAvantOuApresHeure(prof: String, heure: String, arrivee: Boolean): Unit = {
       val indexHeure = getHeure(heure) - 1
-      
+
       for (j <- jours) {
         for (l <- locaux) {
-          if(arrivee) {
-        	  for (h <- 0 to indexHeure) {
-        		  jhl_prof(getJourHeureLocal(j, heures(h), l)) #\= (getProfesseur(prof))
-        	  }
+          if (arrivee) {
+            for (h <- List.range(0, indexHeure)) {
+              jhl_prof(getJourHeureLocal(j, heures(h), l)-(locaux.length-1)) #\= (getProfesseur(prof))
+            }
           } else {
-            for (h <- indexHeure to heures.length-1) {
-              //TODO: marche pas et je ne vois pas pourquoi
-        		//  jhl_prof(getJourHeureLocal(j, heures(h), l)) #\= (getProfesseur(prof))
+            for (h <- List.range(indexHeure, heures.length-1)) {        		
+              jhl_prof(getJourHeureLocal(j, heures(h), l)+(locaux.length-1)) #\= (getProfesseur(prof))
             }
           }
         }
+      }
+    }
+    
+    /**
+     * Définit une contrainte disant que le prof ne donne pas cours tel jour de la semaine
+     * @params prof Le nom du professeur
+     * @params jour Le jour de la semaine
+     * @params heure L'heure
+     * */
+    def profDonnePasCoursJourHeure(prof: String, jour: String, heure: String): Unit = {
+      val j = getJour(jour)-1
+      val h = getHeure(heure) - 1
+      
+      for (l <- locaux) {
+        jhl_prof(getJourHeureLocal(jours(j), heures(h), l)-(locaux.length-1)) #\= getProfesseur(prof)
       }
     }
     
@@ -185,66 +201,86 @@ object Test extends jacop {
         OR(AND(jhl_prof(i) #= 1, jhl_prof(i) #= 1), AND(jhl_prof(i) #\= 1, jhl_prof(i) #\= jhl_prof(i + j)))
       }
     }
+
     
-    // ******************
+    // ************************
+    // * Contraintes choisies *
+    // ************************
+
+    /**
+     * jours d'absences des professeurs
+     */
     
-    // jour d'absence des profs
-    profDonnePasCoursJour("Donatien", "Mercredi")
+    	profDonnePasCoursJour("Donatien", "Mercredi")
+
+//    	profDonnePasCoursJour("Brigitte", "Jeudi")
 //    
-//    profDonnePasCoursJour("Brigitte", "Jeudi")
+//    	profDonnePasCoursJour("Gilles", "Lundi")
+//    	profDonnePasCoursJour("Gilles", "Mercredi")
+//    	profDonnePasCoursJour("Gilles", "Jeudi")
+//    	profDonnePasCoursJour("Gilles", "Vendredi")
 //    
-//    profDonnePasCoursJour("Gilles", "Lundi")
-//    profDonnePasCoursJour("Gilles", "Mercredi")
-//    profDonnePasCoursJour("Gilles", "Jeudi")
-//    profDonnePasCoursJour("Gilles", "Vendredi")
+//    	profDonnePasCoursJour("Emmeline", "Vendredi")
+
+    	
+    /**
+     * heures d'arrivées des professeurs
+     */
+    
+    	profDonnePasCoursAvantOuApresHeure("Donatien", "10h30", true)
+    
+//    	profDonnePasCoursAvantOuApresHeure("Brigitte", "13h00")
+//    	profDonnePasCoursAvantOuApresHeure("Gilles", "9h30")
+    
+    	
+    /**
+     * heures de départ des professeurs
+     */ 
+    
+    	profDonnePasCoursAvantOuApresHeure("Donatien", "15h00", false)
+    
+    	
+    /**
+     * heures de repos des professeurs
+     */
+    
+    	profDonnePasCoursJourHeure("Donatien", "Vendredi", "14h00")
+    
+    	
+   /**
+    * nombres d'heures des séries par cours
+    */ 
+    	
+    	serieCours("A", "Scala", 2)
+    	serieCours("B", "Scala", 2)
+    	
+//    	serieCours("A", "Anglais", 2)
+//    	serieCours("B", "Anglais", 2)
+//        
+//    	serieCours("A", "BI", 2)
+//    	serieCours("B", "BI", 2)
+//        
+//    	serieCours("A", "C++", 2)
 //    
-//    profDonnePasCoursJour("Emmeline", "Vendredi")
+//    	serieCours("B", "SAP", 2)
+   
     
-    // heure d'arrivée des profs
-    profDonnePasCoursAvantOuApresHeure("Donatien", "16h00", true)
-//    profDonnePasCoursAvantHeure("Brigitte", "13h00")
-//    profDonnePasCoursAvantHeure("Gilles", "9h30")
-    
-    // heure de départ des profs
-    profDonnePasCoursAvantOuApresHeure("Donatien", "15h00", false)
-    
-    // série a cours de ... pendant ... heures
-//    serieCours("A", "Anglais", 2)
-//    serieCours("B", "Anglais", 2)
+    /**
+     * nombres d'heures des professeurs par cours
+     */ 
+    	
+    	profDonneCours("Donatien", "Scala", 4)
+
+//    	profDonneCours("Sonia", "Anglais", 4)
+//    	profDonneCours("Gilles", "BI", 4)
+//    	profDonneCours("Thierry", "C++", 2)
 //    
-//    serieCours("A", "BI", 2)
-//    serieCours("B", "BI", 2)
-//    
-//    serieCours("A", "C++", 2)
-    serieCours("A", "Scala", 2)
-    
-//    serieCours("B", "SAP", 2)
-    serieCours("B", "Scala", 2)
-    
-    // prof donne cours pendant ... heures
-//    profDonneCours("Sonia", "Anglais", 4)
-//    profDonneCours("Gilles", "BI", 4)
-//    profDonneCours("Thierry", "C++", 2)
-    profDonneCours("Donatien", "Scala", 4)
-//    profDonneCours("Thierry", "SAP", 2)
-    
-    
-    //TODO: profDonnePasCoursApres... profDonnePasCoursATelHeure...
-    
-    
-    
-//    profDonnePasCoursJour("Donatien", "Vendredi")
-//    profDonnePasCoursJour("Brigitte", "Lundi")
-//    profDonnePasCoursJour("Brigitte", "Mardi")
-//    profDonnePasCoursJour("Brigitte", "Mercredi")
-//    profDonnePasCoursJour("Brigitte", "Jeudi")
-    //profDonnePasCoursAvantHeure("Donatien", "9h30")
-//    profDonneCours("Donatien", "IOO", 4)
-    //profDonneCours("Donatien", "Scala", 4)
-//    serieACours("A", "IOO", 3)
-//    serieACours("B", "IOO", 3)
-//    profDonneCours("Brigitte", "IOO", 2)
-//    profDonneCours("Gilles", "BI", 4)
+//    	profDonneCours("Thierry", "SAP", 2)
+
+    	
+    	
+    //************************
+    	
     
     val vars = jhl_prof ::: jhl_cours ::: jhl_serie
     
